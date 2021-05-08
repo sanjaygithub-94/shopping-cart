@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 use App\Services\ShoppingService;
 use App\Models\Product;
 use App\Models\Cart;
+use App\Models\Order;
 use Illuminate\Http\Request;
 use Session;
+use Auth;
 
 class ShoppingController extends Controller
 {
@@ -73,6 +75,12 @@ class ShoppingController extends Controller
         $oldCart = Session::get('cart');
         $cart = new Cart($oldCart);
 
+        $data = [
+            'user_id' => Auth::user()->id,
+            'product_id' => json_encode(array_keys($cart->items)) ,
+            'total_price' => $cart->totalPrice
+        ];
+        Order::insert($data);
         Session::forget('cart');
         $products = $this->shoppingService->index();
 
